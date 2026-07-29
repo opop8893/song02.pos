@@ -1,20 +1,23 @@
+// =================================
+// 宋爽爽 Night POS V2.0 第十一版
+// app.js
+// B21 自動列印佇列版
+// =================================
+
+
 let order = [];
 
 let total = 0;
 
 
-// =================
 // 訂單號碼
-// =================
 
 let orderNumber =
 Number(localStorage.getItem("orderNumber")) || 1;
 
 
 
-// =================
 // 今日資料
-// =================
 
 let todaySales =
 Number(localStorage.getItem("todaySales")) || 0;
@@ -29,14 +32,21 @@ Number(localStorage.getItem("todayCount")) || 0;
 
 
 
-// =================
 // 訂單紀錄
-// =================
 
 let orderHistory =
-
 JSON.parse(
 localStorage.getItem("orderHistory")
+)
+|| [];
+
+
+
+// B21列印佇列
+
+let b21Queue =
+JSON.parse(
+localStorage.getItem("b21Queue")
 )
 || [];
 
@@ -47,15 +57,15 @@ const price = 130;
 
 
 
-// =================
-// 點餐
-// =================
+
+// ======================
+// 加入商品
+// ======================
 
 function addItem(name){
 
 
 let item =
-
 order.find(
 x=>x.name===name
 );
@@ -66,7 +76,6 @@ if(item){
 
 
 item.qty++;
-
 
 item.price =
 item.qty * price;
@@ -101,20 +110,22 @@ showOrder();
 
 
 
-// =================
+
+
+
+
+// ======================
 // 加起司
-// =================
+// ======================
 
 function addCheese(){
 
 
 if(order.length===0){
 
-
 alert(
 "請先選擇口味"
 );
-
 
 return;
 
@@ -123,7 +134,6 @@ return;
 
 
 let item =
-
 order.find(
 x=>x.name==="加起司"
 );
@@ -135,8 +145,7 @@ if(item){
 
 item.qty++;
 
-item.price +=10;
-
+item.price+=10;
 
 
 }else{
@@ -156,8 +165,7 @@ price:10
 }
 
 
-
-total +=10;
+total+=10;
 
 
 showOrder();
@@ -168,9 +176,12 @@ showOrder();
 
 
 
-// =================
+
+
+
+// ======================
 // 顯示訂單
-// =================
+// ======================
 
 function showOrder(){
 
@@ -178,26 +189,15 @@ function showOrder(){
 let text="";
 
 
-
 order.forEach((item,index)=>{
 
 
 text +=
 
-(index+1)+". "+
-
-item.name+
-
-" × "+
-
-item.qty+
-
-" = "+
-
-item.price+
-
-"元<br>";
-
+`${index+1}.
+${item.name}
+×${item.qty}
+${item.price}元<br>`;
 
 
 });
@@ -225,31 +225,12 @@ document.getElementById(
 
 
 
-// =================
-// 清空目前訂單
-// =================
-
-function clearOrder(){
-
-
-order=[];
-
-total=0;
-
-
-showOrder();
-
-
-}
 
 
 
-
-
-
-// =================
+// ======================
 // 完成訂單
-// =================
+// ======================
 
 function finishOrder(){
 
@@ -257,60 +238,23 @@ function finishOrder(){
 
 if(order.length===0){
 
-
 alert(
 "目前沒有訂單"
 );
 
-
 return;
-
 
 }
 
 
 
-
 let number =
-
 String(orderNumber)
 .padStart(3,"0");
 
 
 
-todayOrders++;
-
-
-todaySales += total;
-
-
-
-let bowls=0;
-
-
-
-order.forEach(item=>{
-
-
-if(item.name!=="加起司"){
-
-
-bowls += item.qty;
-
-
-}
-
-
-});
-
-
-
-todayCount += bowls;
-
-
-
-
-let saveOrder={
+let saveOrder = {
 
 
 number:number,
@@ -330,6 +274,8 @@ total:total
 
 
 
+// 保存訂單
+
 orderHistory.push(saveOrder);
 
 
@@ -344,72 +290,85 @@ JSON.stringify(orderHistory)
 
 
 
-localStorage.setItem(
 
+
+// 統計
+
+todayOrders++;
+
+todaySales += total;
+
+
+
+order.forEach(item=>{
+
+
+if(item.name!=="加起司"){
+
+todayCount += item.qty;
+
+}
+
+
+});
+
+
+
+
+localStorage.setItem(
 "todaySales",
-
 todaySales
-
 );
 
 
-
 localStorage.setItem(
-
 "todayOrders",
-
 todayOrders
-
 );
-
 
 
 localStorage.setItem(
-
 "todayCount",
-
 todayCount
-
 );
 
+
+
+// 建立B21列印
+
+createB21Queue(saveOrder);
+
+
+
+// 下一號
+
+orderNumber++;
 
 
 localStorage.setItem(
 
 "orderNumber",
 
-orderNumber+1
+orderNumber
 
 );
 
-
-
-
-
-// 建立B21貼紙
-
-createB21Queue(saveOrder);
 
 
 
 
 alert(
 
-"完成訂單\n\n"+
-
+"訂單完成\n\n"+
 "號碼："+number+
-
-"\n金額："+total+"元"
+"\nB21貼紙已加入列印"
 
 );
 
 
 
-orderNumber++;
-
 
 order=[];
-
 
 total=0;
 
@@ -421,33 +380,13 @@ showReport();
 
 showHistory();
 
-
-}
-
+showB21Queue();
 
 
 
+// 呼叫App列印
 
-
-// =================
-// 今日營業
-// =================
-
-function showReport(){
-
-
-
-document.getElementById(
-"report"
-).innerHTML =
-
-
-"訂單數："+todayOrders+"筆<br>"+
-
-"總碗數："+todayCount+"碗<br>"+
-
-"營業額："+todaySales+"元";
-
+autoPrintB21();
 
 
 }
@@ -458,197 +397,21 @@ document.getElementById(
 
 
 
-// =================
-// 訂單明細
-// =================
 
-function showHistory(){
+// ======================
+// 建立B21單碗貼紙
+// ======================
 
 
+function createB21Queue(data){
 
-let text="";
 
 
+let count=1;
 
-orderHistory.forEach(o=>{
 
 
-text +=
-
-"<hr>"+
-
-o.number+
-
-"號<br>";
-
-
-
-o.items.forEach(item=>{
-
-
-text +=
-
-item.name+
-
-" × "+
-
-item.qty+
-
-" "+
-
-item.price+
-
-"元<br>";
-
-
-
-});
-
-
-
-text +=
-
-"總額："+o.total+"元<br>";
-
-
-
-});
-
-
-
-document.getElementById(
-
-"orderHistory"
-
-).innerHTML =
-
-text || "目前沒有訂單";
-
-
-
-}
-
-
-
-
-
-
-
-// =================
-// 清除今日營業
-// =================
-
-function clearSales(){
-
-
-if(confirm(
-"確定清除今日營業資料嗎？"
-)){
-
-
-todaySales=0;
-
-todayOrders=0;
-
-todayCount=0;
-
-
-orderHistory=[];
-
-
-
-localStorage.removeItem(
-"todaySales"
-);
-
-
-localStorage.removeItem(
-"todayOrders"
-);
-
-
-localStorage.removeItem(
-"todayCount"
-);
-
-
-localStorage.removeItem(
-"orderHistory"
-);
-
-
-
-showReport();
-
-showHistory();
-
-
-}
-
-}
-
-
-
-
-
-
-// =================
-// B21貼紙資料
-// =================
-
-
-let b21Queue =
-
-JSON.parse(
-
-localStorage.getItem("b21Queue")
-
-)
-
-|| [];
-
-
-
-
-
-
-
-// =================
-// 建立單碗貼紙
-// =================
-
-
-function createB21Queue(orderData){
-
-
-
-let num=1;
-
-
-
-let cheese=0;
-
-
-
-orderData.items.forEach(item=>{
-
-
-if(item.name==="加起司"){
-
-
-cheese=item.qty;
-
-
-}
-
-
-});
-
-
-
-
-
-orderData.items.forEach(item=>{
+data.items.forEach(item=>{
 
 
 if(item.name!=="加起司"){
@@ -661,13 +424,12 @@ for(let i=0;i<item.qty;i++){
 
 b21Queue.push({
 
-id:
 
-orderData.number+"-"+num,
+id:
+data.number+"-"+count,
 
 
 name:
-
 item.name,
 
 
@@ -681,7 +443,7 @@ printed:false
 
 
 
-num++;
+count++;
 
 
 }
@@ -696,33 +458,103 @@ num++;
 
 
 
-for(let i=0;i<cheese;i++){
+// 加起司附加最後一碗
+
+let cheese =
+data.items.find(
+x=>x.name==="加起司"
+);
 
 
 
-let index=
+if(cheese){
 
+
+for(
+let i=0;
+i<cheese.qty;
+i++
+){
+
+
+let index =
 b21Queue.length-1-i;
-
 
 
 if(index>=0){
 
-
 b21Queue[index].cheese=true;
 
-
 }
 
 
 }
 
+
+}
 
 
 
 saveB21();
 
 
+}
+
+
+
+
+
+
+
+
+// ======================
+// B21 自動列印接口
+// ======================
+
+
+function autoPrintB21(){
+
+
+
+let wait =
+
+b21Queue.filter(
+x=>!x.printed
+);
+
+
+
+if(wait.length===0){
+
+return;
+
+}
+
+
+
+// 未來接 Capacitor B21 SDK
+
+if(
+window.B21Printer
+){
+
+
+window.B21Printer.print(
+wait
+);
+
+
+}else{
+
+
+console.log(
+"B21等待列印",
+wait
+);
+
+
+}
+
 
 }
 
@@ -732,17 +564,16 @@ saveB21();
 
 
 
-// =================
-// 顯示B21列表
-// =================
+
+// ======================
+// B21列表
+// ======================
 
 
 function showB21Queue(){
 
 
-
-let box=
-
+let box =
 document.getElementById(
 "b21Queue"
 );
@@ -760,10 +591,7 @@ let text="";
 b21Queue.forEach((item,index)=>{
 
 
-text +=
-
-
-`
+text+=`
 
 <div class="b21-card">
 
@@ -771,7 +599,7 @@ text +=
 
 <br>
 
-🍲 宋爽爽
+🍲宋爽爽
 
 <br>
 
@@ -779,19 +607,19 @@ ${item.name}
 
 <br>
 
-${item.cheese?"🧀 加起司":""}
+${item.cheese?"🧀加起司":""}
 
 <br>
 
 ${item.printed?
-"✅ 已列印":
-"⏳ 待列印"}
+"✅完成":
+"⏳等待列印"}
 
 <br>
 
-<button onclick="printB21One(${index})">
+<button onclick="rePrintB21(${index})">
 
-🖨️ 重印
+重新列印
 
 </button>
 
@@ -805,33 +633,11 @@ ${item.printed?
 
 
 
-box.innerHTML=
-
+box.innerHTML =
 text || "目前沒有貼紙";
 
 
 
-
-document.getElementById(
-"waitCount"
-).innerHTML =
-
-b21Queue.filter(
-x=>!x.printed
-).length;
-
-
-
-document.getElementById(
-"doneCount"
-).innerHTML =
-
-b21Queue.filter(
-x=>x.printed
-).length;
-
-
-
 }
 
 
@@ -840,53 +646,27 @@ x=>x.printed
 
 
 
-// =================
-// 單張列印
-// =================
+
+// ======================
+// 重印
+// ======================
 
 
-function printB21One(index){
+function rePrintB21(index){
 
 
-
-let item=b21Queue[index];
-
-
-
-let label=
-
-"🍲宋爽爽\n\n"+
-
-item.id+
-
-"\n\n"+
-
-item.name+
-
-"\n"+
-
-(item.cheese?
-"🧀加起司":
-"");
+let item =
+b21Queue[index];
 
 
 
-navigator.clipboard.writeText(label);
-
-
-
-item.printed=true;
-
+item.printed=false;
 
 
 saveB21();
 
 
-
-alert(
-"已準備 "+item.id
-);
-
+autoPrintB21();
 
 
 }
@@ -896,96 +676,9 @@ alert(
 
 
 
-
-// =================
-// 全部列印
-// =================
-
-
-function printAllB21(){
-
-
-
-let text="";
-
-
-
-b21Queue.forEach(item=>{
-
-
-if(!item.printed){
-
-
-
-text +=
-
-"🍲宋爽爽\n"+
-
-item.id+
-
-"\n"+
-
-item.name+
-
-"\n"+
-
-(item.cheese?
-"🧀加起司":
-"")+
-
-"\n\n";
-
-
-
-item.printed=true;
-
-
-}
-
-
-});
-
-
-
-if(text===""){
-
-
-alert(
-"沒有待列印貼紙"
-);
-
-
-return;
-
-
-}
-
-
-
-navigator.clipboard.writeText(text);
-
-
-
-saveB21();
-
-
-
-alert(
-"全部貼紙已準備"
-);
-
-
-
-}
-
-
-
-
-
-
-// =================
+// ======================
 // 儲存B21
-// =================
+// ======================
 
 function saveB21(){
 
@@ -999,7 +692,6 @@ JSON.stringify(b21Queue)
 );
 
 
-
 showB21Queue();
 
 
@@ -1010,32 +702,21 @@ showB21Queue();
 
 
 
-
-// =================
-// 清除已列印
-// =================
-
-function clearPrintedB21(){
+// ======================
+// 今日營業
+// ======================
 
 
-
-if(confirm(
-"清除已列印貼紙？"
-)){
+function showReport(){
 
 
-b21Queue =
+document.getElementById(
+"report"
+).innerHTML=
 
-b21Queue.filter(
-x=>!x.printed
-);
-
-
-
-saveB21();
-
-
-}
+"訂單數："+todayOrders+"筆<br>"+
+"總碗數："+todayCount+"碗<br>"+
+"營業額："+todaySales+"元";
 
 
 }
@@ -1045,10 +726,66 @@ saveB21();
 
 
 
-// =================
+
+
+// ======================
+// 訂單明細
+// ======================
+
+function showHistory(){
+
+
+let text="";
+
+
+orderHistory.forEach(o=>{
+
+
+text+=
+
+"<hr>"+
+o.number+
+"號<br>";
+
+
+
+o.items.forEach(item=>{
+
+
+text+=
+
+item.name+
+" × "+
+item.qty+
+" "+
+item.price+
+"元<br>";
+
+});
+
+
+text+=
+"總額："+o.total+"元<br>";
+
+});
+
+
+document.getElementById(
+"orderHistory"
+).innerHTML=
+
+text||"目前沒有訂單";
+
+
+}
+
+
+
+
+
+
+
 // 啟動
-// =================
-
 
 showOrder();
 
