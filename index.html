@@ -1,1 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>宋爽爽 Night POS</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+
+<h1>🍲 宋爽爽 Night POS</h1>
+
+<div class="order-no">
+訂單號碼：<span id="orderNumber">001</span>
+</div>
+
+</div>
+
+
+
+<div class="menu-title">
+🍜 快速點餐
+</div>
+
+
+
+<div class="menu-grid">
+
+
+<button onclick="addItem('蜀香麻辣')">
+
+🌶️
+<br>
+蜀香麻辣
+<br>
+<span>130元</span>
+
+</button>
+
+
+
+<button onclick="addItem('石頭火鍋')">
+
+🪨
+<br>
+石頭火鍋
+<br>
+<span>130元</span>
+
+</button>
+
+
+
+<button onclick="addItem('田園蕃茄')">
+
+🍅
+<br>
+田園蕃茄
+<br>
+<span>130元</span>
+
+</button>
+
+
+
+<button onclick="addItem('濃郁牛奶')">
+
+🥛
+<br>
+濃郁牛奶
+<br>
+<span>130元</span>
+
+</button>
+
+
+
+<button onclick="addItem('烏溜溜黑蒜')">
+
+🧄
+<br>
+烏溜溜黑蒜
+<br>
+<span>130元</span>
+
+</button>
+
+
+
+<button onclick="addItem('酸菜魚')">
+
+🥬
+<br>
+酸菜魚
+<br>
+<span>130元</span>
+
+</button>
+
+
+</div>
+
+
+
+
+
+<div class="order-box">
+
+
+<h2>
+🧾 目前訂單
+</h2>
+
+
+
+<div id="orderList">
+
+尚無商品
+
+</div>
+
+
+
+<div class="total">
+
+總金額：
+<span id="total">
+0
+</span>
+元
+
+</div>
+
+
+
+<button class="cheese"
+onclick="addCheese()">
+
+🧀 加起司 +10元
+
+</button>
+
+
+
+<div class="action">
+
+
+<button class="clear"
+onclick="clearOrder()">
+
+清空
+
+</button>
+
+
+
+<button class="finish"
+onclick="finishOrder()">
+
+✅ 完成訂單
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="bottom-menu">
+
+
+<button onclick="showKitchen()">
+
+👨‍🍳 出餐
+
+</button>
+
+
+
+<button onclick="showReport()">
+
+📊 報表
+
+</button>
+
+
+
+<button onclick="resetOrderNumber()">
+
+🔢 歸零
+
+</button>
+
+
+</div>
+
+
+
+
+
+<script src="app.js"></script>
+
+
+</body>
+
+</html>
