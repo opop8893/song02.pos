@@ -1,1 +1,27 @@
+{
+  "name": "宋爽爽 Night POS",
+  "short_name": "宋爽爽POS",
 
+  "start_url": "index.html",
+
+  "display": "standalone",
+
+  "background_color": "#111111",
+
+  "theme_color": "#c0392b",
+
+  "orientation": "portrait",
+
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ]
+}
